@@ -9,7 +9,7 @@ WhatsAsena - Yusuf Usta
 const Asena = require("../Utilis/events")
 const got = require("got")
 const fs = require("fs")
-const { parseGistUrls } = require("../Utilis/Misc")
+const { parseGistUrls, pluginList } = require("../Utilis/Misc")
 const { installPlugin, getPlugin, deletePlugin } = require("../Utilis/plugins")
 const Language = require("../language")
 const Lang = Language.getString("_plugin")
@@ -28,6 +28,10 @@ Asena.addCommand(
       )
     }
     const isValidUrl = parseGistUrls(match)
+    if (!isValidUrl) {
+      const { url } = await getPlugin(match)
+      if (url) return await message.sendMessage(url, { quoted: message.data })
+    }
     if (!isValidUrl) return await message.sendMessage(Lang.INVALID_URL)
     for (const url of isValidUrl) {
       try {
@@ -45,7 +49,9 @@ Asena.addCommand(
             return fs.unlinkSync("./plugins/" + plugin_name + ".js")
           }
           await installPlugin(url, plugin_name)
-          await message.sendMessage(Lang.INSTALLED.format(plugin_name))
+          await message.sendMessage(
+            Lang.INSTALLED.format(pluginList(res.body).join(","))
+          )
         }
       } catch (error) {
         await message.sendMessage(`${error}\n${url}`)
@@ -58,6 +64,10 @@ Asena.addCommand(
   { pattern: "remove (.*)", fromMe: true, desc: Lang.REMOVE_DESC },
   async (message, match) => {
     if (!match) return await message.sendMessage(Lang.NEED_PLUGIN)
+    if (match == "all") {
+      await deletePlugin()
+      return await message.sendMessage("_All plugins deleted Successfully_")
+    }
     const isDeleted = await deletePlugin(match)
     if (!isDeleted) return await message.sendMessage(Lang.NOT_FOUND_PLUGIN)
     delete require.cache[require.resolve("./" + match + ".js")]

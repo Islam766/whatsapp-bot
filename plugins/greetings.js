@@ -21,6 +21,7 @@ const {
   clearGreetings,
   mentionMessage,
   enableMention,
+  clearFiles,
 } = require("../Utilis/Misc")
 const { MessageType } = require("@adiwajshing/baileys")
 const { getMessage, deleteMessage } = require("../Utilis/warn")
@@ -157,6 +158,9 @@ Asena.addCommand(
         {},
         MessageType.buttonsMessage
       )
+    let participants = await message.groupMetadata(message.jid)
+    let im = await checkImAdmin(participants, message.client.user.jid)
+    if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
     if (match == "list") {
       let list = ""
       let urls = await antiList(message.jid, "link")
@@ -167,9 +171,6 @@ Asena.addCommand(
       })
       return await message.sendMessage(s + list + s)
     } else if (match == "on" || match == "off") {
-      let participants = await message.groupMetadata(message.jid)
-      let im = await checkImAdmin(participants, message.client.user.jid)
-      if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
       await enableAntilink(message.jid, match)
       return await message.sendMessage(
         Lang.A_ENABLED.format(
@@ -201,6 +202,9 @@ Asena.addCommand(
         {},
         MessageType.buttonsMessage
       )
+    let participants = await message.groupMetadata(message.jid)
+    let im = await checkImAdmin(participants, message.client.user.jid)
+    if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
     if (match == "list") {
       let list = ""
       let codes = await antiList(message.jid, "fake")
@@ -211,9 +215,6 @@ Asena.addCommand(
       })
       return await message.sendMessage(s + list + s)
     } else if (match == "on" || match == "off") {
-      let participants = await message.groupMetadata(message.jid)
-      let im = await checkImAdmin(participants, message.client.user.jid)
-      if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
       await enableAntiFake(message.jid, match)
       return await message.sendMessage(
         Lang.A_ENABLED.format(
@@ -245,6 +246,9 @@ Asena.addCommand(
         {},
         MessageType.buttonsMessage
       )
+    let participants = await message.groupMetadata(message.jid)
+    let im = await checkImAdmin(participants, message.client.user.jid)
+    if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
     if (match == "list") {
       let list = ""
       let words = await antiList(message.jid, "bad")
@@ -255,9 +259,6 @@ Asena.addCommand(
       })
       return await message.sendMessage(s + list + s)
     } else if (match == "on" || match == "off") {
-      let participants = await message.groupMetadata(message.jid)
-      let im = await checkImAdmin(participants, message.client.user.jid)
-      if (!im) return await message.sendMessage(Lang1.IM_NOT_ADMIN)
       await enableAntiBad(message.jid, match)
       return await message.sendMessage(
         Lang.A_ENABLED.format(
@@ -299,6 +300,7 @@ Asena.addCommand(
       )
     }
     await enableMention(match)
+    clearFiles()
     return await message.sendMessage(Lang.A_UPDATED.format("Mention"))
   }
 )
